@@ -1,3 +1,4 @@
+import numpy as np
 
 def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
@@ -11,7 +12,7 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
   ""
   ""
   '''
-  registers = [0]*32
+  registers = [np.int32(0)]*32
   PC = [start_address]
   registers[2] = sp
   stack = []
@@ -20,19 +21,25 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
 
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
-    print_instruction(PC[0], instruction)
-    if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
-      if ((sp - registers[2]) >> 2) - len(stack) > 0:
-        for i in range((((sp - registers[2]) >> 2) - len(stack))):
-          stack = stack + [[None, None]]
+    if mode == "manual":
+      flags = input(">>>")
+    
+    if (mode == "manual" and 'o' in flags) or mode == "default":
+      print_instruction(PC[0], instruction)
+      if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
+        if ((sp - registers[2]) >> 2) - len(stack) > 0:
+          for i in range((((sp - registers[2]) >> 2) - len(stack))):
+            stack = stack + [[None, None]]
+        else:
+          stack = stack[:((sp - registers[2]) >> 2)]
+      elif res == "stop":
+        break
       else:
-        stack = stack[:((sp - registers[2]) >> 2)]
-      #print_registers(registers, 9)
+          raise ValueError("there is not such instruction")
+    if (mode == "manual" and 'r' in flags) or mode == "default":
+      print_registers(registers, 9)
+    if (mode == "manual" and 's' in flags) or mode == "default":  
       print_stack(stack, sp)
-    elif res == "stop":
-      break
-    else:
-      raise ValueError("there is not such instruction")
   print("Program is ended")
 
 name_of_registers = {"zero":0,  "x0":  0,
@@ -158,7 +165,7 @@ def print_registers(regs, col):
     print('+--------------'*col, '+', sep = '')
     for u in range(col):
       if i+u<32:
-        print('|'+f"{'x'f'{i+u} 'f'{hex(regs[i+u])}':<14}", end = '')
+        print('|'+f"{'x'f'{i+u}':<4}" + f'{hex(regs[i+u]):<10}', end = '')
       else:
         print('|'+f"{'':14}", end = '')
     print('|')
@@ -173,4 +180,4 @@ def print_instruction(address, instruction):
     operands = []
   print(operation, ", ".join(operands), "\n")
 
-rv_interpreter("6_21.asm", 32768)
+rv_interpreter("6_21.asm", 32768, mode = "manual")
