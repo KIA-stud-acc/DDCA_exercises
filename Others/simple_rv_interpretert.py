@@ -85,7 +85,6 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
     case "sw": #здесь будет только урезанная версия, пригодная только для работы со стеком
       op_reg = operands[1].split('(')[1][:-1]
       op_imm = operands[1].split('(')[0]
-      print("AAAAAAAAAAAAAAAAAAA", ((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1)
       stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1] = registers[name_of_registers[operands[0]]]
     case "lw": #аналогично sw
       op_reg = operands[1].split('(')[1][:-1]
