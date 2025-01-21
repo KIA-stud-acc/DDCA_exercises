@@ -26,8 +26,8 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
           stack = stack + [[None, None]]
       else:
         stack = stack[:((sp - registers[2]) >> 2)]
-      print_registers(registers, 9)
-      print(stack, sep = '\n')
+      #print_registers(registers, 9)
+      print_stack(stack, sp)
     elif res == "stop":
       break
     else:
@@ -138,17 +138,18 @@ def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simb
         tmp_pc += 4
   return code
 
-def print_stack(stack):
-  print("registers content:")
+def print_stack(stack, start_address):
+  print("stack:")
   for i in range(len(stack)):
-    print('+--------------'*col, '+', sep = '')
-    for u in range(col):
-      if i+u<32:
-        print('|'+f"{'x'f'{i+u} 'f'{hex(regs[i+u])}':<14}", end = '')
-      else:
-        print('|'+f"{'':14}", end = '')
-    print('|')
-  print('+--------------'*col,"+\n", sep = '')
+    print('+--------------+')
+    try:
+      print('|'+f"{f'{stack[i][0]} ' f'{hex(stack[i][1])}':<14}"+f"|{hex(start_address-i*4)}")
+    except TypeError:
+      print('|'+f'{"-----":^14}'+f"|{hex(start_address-i*4)}")
+  if len(stack)>0:
+    print('+--------------+\n')
+  else:
+    print("stack is empty")
 
 def print_registers(regs, col):
   print("registers content:")
