@@ -7,6 +7,7 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
   mode:           
   "default" - after each operation both stack and registers will be printed automatically
   "manual"  - each operation only after input (o, s, r and combinations) 
+  "file"    - as default, but output in file "report.txt"
   ""
   ""
   '''
