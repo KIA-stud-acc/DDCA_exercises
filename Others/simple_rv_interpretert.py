@@ -18,7 +18,7 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
 
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
-    print(f"{hex(PC[0])}\t{instruction.split('#', 1)[0]}")
+    print_instruction(PC[0], instruction)
     if res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp):
       if ((sp - registers[2]) >> 2) - len(stack) > 0:
         stack = (((sp - registers[2]) >> 2) - len(stack))*[0] + stack
@@ -67,6 +67,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
                       }
   operation = instruction.split(" ", 1)[0]
   operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
+  print(operation)
   match operation:
     case "addi":
       registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + int(operands[2])
@@ -131,5 +132,11 @@ def print_stack():
 
 def print_registers():
   pass
+
+def print_instruction(address, instruction):
+  print(f"{hex(address)}\t", end = ' ')
+  operation = instruction.split(" ", 1)[0]
+  operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
+  print(operation, ", ".join(operands))
 
 rv_interpreter("6_21.asm", 32768)
