@@ -4,7 +4,7 @@ test:  addi a0, zero, 5    # a = 5
        addi a1, zero, 3    # b = 3
        jal  f              # вызов f(5, 3)
 
-loop:  j    loop           # вечный цикл
+loop:  ret        # вечный цикл
 f:     addi sp, sp, -16    # создать фрейм в стеке
        sw   a0, 0xC(sp)    # сохранить a0
        sw   a1, 0x8(sp)    # сохранить a1
@@ -33,4 +33,4 @@ else:  addi a0, a0, -1     # уменьшить x на 1
 done:  lw   s4, 0(sp)      # восстановить регистры
        lw   ra, 4(sp)
        addi sp, sp, 8
-       #jr   ra             # возврат в точку вызова
+       jr   ra             # возврат в точку вызова

@@ -5,7 +5,8 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
   start_address:  address of the first instuction in the assembler program
   sp:             address of the top of the stack
   mode:           
-  "default" - every change of stack will be printed with the minimum possible cells in it
+  "default" - after each operation both stack and registers will be printed automatically
+  "manual"  - each operation only after input (o, s, r and combinations) 
   ""
   ""
   '''
@@ -19,19 +20,21 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
     print_instruction(PC[0], instruction)
-    if res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp):
+    if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
       if ((sp - registers[2]) >> 2) - len(stack) > 0:
-        stack = (((sp - registers[2]) >> 2) - len(stack))*[0] + stack
+        stack = stack + (((sp - registers[2]) >> 2) - len(stack))*[None]
       else:
-        stack = stack[((sp - registers[2]) >> 2) - len(stack):]
+        stack = stack[:((sp - registers[2]) >> 2)]
       print(registers, stack, sep = '\n')
+    elif res == "stop":
+      break
     else:
       raise ValueError("there is not such instruction")
   print("Program is ended")
 
 
 
-def do_some_operation(instruction: str, registers: list, stack: list, simbol_table: dict, pc, start_pos_stack) -> bool:
+def do_some_operation(instruction: str, registers: list, stack: list, simbol_table: dict, pc, start_pos_stack) -> bool|str:
   name_of_registers = {"zero":0,  "x0":  0,
                        "ra":  1,  "x1":  1,
                        "sp":  2,  "x2":  2,
@@ -66,8 +69,10 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
                        "t6":  31, "x31": 31
                       }
   operation = instruction.split(" ", 1)[0]
-  operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
-  print(operation)
+  try:
+    operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
+  except IndexError:
+    operands = None
   match operation:
     case "addi":
       registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + int(operands[2])
@@ -106,6 +111,8 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
         pc[0] = simbol_table[operands[2]]-4
     case "nop":
       pass
+    case "ret":
+      return "stop"
     case _: 
       return False
     
@@ -136,7 +143,10 @@ def print_registers():
 def print_instruction(address, instruction):
   print(f"{hex(address)}\t", end = ' ')
   operation = instruction.split(" ", 1)[0]
-  operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
+  try:
+    operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
+  except IndexError:
+    operands = []
   print(operation, ", ".join(operands))
 
 rv_interpreter("6_21.asm", 32768)
