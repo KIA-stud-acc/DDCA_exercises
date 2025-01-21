@@ -22,20 +22,19 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
     print_instruction(PC[0], instruction)
     if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
       if ((sp - registers[2]) >> 2) - len(stack) > 0:
-        stack = stack + (((sp - registers[2]) >> 2) - len(stack))*[None]
+        for i in range((((sp - registers[2]) >> 2) - len(stack))):
+          stack = stack + [[None, None]]
       else:
         stack = stack[:((sp - registers[2]) >> 2)]
-      print(registers, stack, sep = '\n')
+      print_registers(registers, 9)
+      print(stack, sep = '\n')
     elif res == "stop":
       break
     else:
       raise ValueError("there is not such instruction")
   print("Program is ended")
 
-
-
-def do_some_operation(instruction: str, registers: list, stack: list, simbol_table: dict, pc, start_pos_stack) -> bool|str:
-  name_of_registers = {"zero":0,  "x0":  0,
+name_of_registers = {"zero":0,  "x0":  0,
                        "ra":  1,  "x1":  1,
                        "sp":  2,  "x2":  2,
                        "gp":  3,  "x3":  3,
@@ -68,11 +67,15 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
                        "t5":  30, "x30": 30,
                        "t6":  31, "x31": 31
                       }
+
+def do_some_operation(instruction: str, registers: list, stack: list, simbol_table: dict, pc, start_pos_stack) -> bool|str:
+  
   operation = instruction.split(" ", 1)[0]
   try:
     operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
   except IndexError:
     operands = None
+
   match operation:
     case "addi":
       registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + int(operands[2])
@@ -91,11 +94,12 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
     case "sw": #здесь будет только урезанная версия, пригодная только для работы со стеком
       op_reg = operands[1].split('(')[1][:-1]
       op_imm = operands[1].split('(')[0]
-      stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1] = registers[name_of_registers[operands[0]]]
+      stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][0] = operands[0]
+      stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1] = registers[name_of_registers[operands[0]]]
     case "lw": #аналогично sw
       op_reg = operands[1].split('(')[1][:-1]
       op_imm = operands[1].split('(')[0]
-      registers[name_of_registers[operands[0]]] = stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1]
+      registers[name_of_registers[operands[0]]] = stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1]
     case "jalr":
       if len(operands) == 1:
         registers[name_of_registers["ra"]] = pc[0] + 4 
@@ -134,11 +138,29 @@ def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simb
         tmp_pc += 4
   return code
 
-def print_stack():
-  pass
+def print_stack(stack):
+  print("registers content:")
+  for i in range(len(stack)):
+    print('+--------------'*col, '+', sep = '')
+    for u in range(col):
+      if i+u<32:
+        print('|'+f"{'x'f'{i+u} 'f'{hex(regs[i+u])}':<14}", end = '')
+      else:
+        print('|'+f"{'':14}", end = '')
+    print('|')
+  print('+--------------'*col,"+\n", sep = '')
 
-def print_registers():
-  pass
+def print_registers(regs, col):
+  print("registers content:")
+  for i in range(0, len(regs), col):
+    print('+--------------'*col, '+', sep = '')
+    for u in range(col):
+      if i+u<32:
+        print('|'+f"{'x'f'{i+u} 'f'{hex(regs[i+u])}':<14}", end = '')
+      else:
+        print('|'+f"{'':14}", end = '')
+    print('|')
+  print('+--------------'*col,"+\n", sep = '')
 
 def print_instruction(address, instruction):
   print(f"{hex(address)}\t", end = ' ')
@@ -147,6 +169,6 @@ def print_instruction(address, instruction):
     operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
   except IndexError:
     operands = []
-  print(operation, ", ".join(operands))
+  print(operation, ", ".join(operands), "\n")
 
 rv_interpreter("6_21.asm", 32768)
