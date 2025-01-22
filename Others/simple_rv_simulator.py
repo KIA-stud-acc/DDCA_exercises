@@ -32,7 +32,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   "default" - after each operation both stack and registers will be printed automatically
   "manual"  - each operation only after input (o, s, r and combinations) 
   "file"    - as default, but output in file "report.txt"
-  ""
+  "debug"   - auto, dont ptinting state of stack and registers, stop after mark "*" in the beginning of the string and print state, after waits for manual directions
   ""
   '''
   registers = [np.int32(0)]*32
@@ -167,11 +167,12 @@ def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simb
   with open(code_file, "r") as asm_file:
     while instruction := asm_file.readline():
       if instruction.split('#', 1)[0].strip():
-        code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip())
         #print(f"{hex(tmp_pc)}\t{instruction[:-1].split('#', 1)[0]}") #print assembler code with addresses of the instructions in ram
         if ':' in instruction.split('#', 1)[0].strip():
           simbol_table[instruction[:instruction.index(':')]] = tmp_pc
-        tmp_pc += 4
+        if instruction.split('#', 1)[0].strip()[-1] != ':':
+          code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip())
+          tmp_pc += 4
   return code
 
 def print_stack(stack, start_address):
