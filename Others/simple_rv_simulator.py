@@ -43,6 +43,10 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table)
   ops = 0
   flags = 'ros'
+  if mode == "file":
+    file = open("report.txt", "w")
+  else:
+    file = None
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
     
@@ -50,8 +54,8 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
       flags = input(">>>")
       ops = max_prefix_number(flags[flags.index('o')+1:], 1)
     
-    if (mode == "manual" and 'o' in flags) or mode == "default":
-      print_instruction(PC[0], instruction)
+    if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file":
+      print_instruction(PC[0], instruction, file)
       if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
         if ((sp - registers[2]) >> 2) - len(stack) > 0:
           for i in range((((sp - registers[2]) >> 2) - len(stack))):
@@ -64,12 +68,13 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
           raise ValueError("there is not such instruction")
       ops-=1
       
-    if (mode == "manual" and 'r' in flags) or mode == "default":
-        print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8))
+    if (mode == "manual" and 'r' in flags) or mode == "default" or mode == "file":
+        print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8), file)
 
-    if (mode == "manual" and 's' in flags) or mode == "default":  
-      print_stack(stack, sp)
-  print("Program is ended")
+    if (mode == "manual" and 's' in flags) or mode == "default" or mode == "file":  
+      print_stack(stack, sp, file)
+    print("-"*50, '\n', file = file)
+  print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
 
 name_of_registers = {"zero":0,  "x0":  0,
                        "ra":  1,  "x1":  1,
@@ -175,43 +180,43 @@ def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simb
           tmp_pc += 4
   return code
 
-def print_stack(stack, start_address):
-  print("stack:")
+def print_stack(stack, start_address, file):
+  print("stack:", file=file)
   for i in range(len(stack)):
-    print('+--------------+')
+    print('+--------------+', file=file)
     try:
-      print('|'+f"{f'{stack[i][0]} ' f'{hex(stack[i][1])}':<14}"+f"|{hex(start_address-i*4)}")
+      print('|'+f"{f'{stack[i][0]} ' f'{hex(stack[i][1])}':<14}"+f"|{hex(start_address-i*4)}", file=file)
     except TypeError:
-      print('|'+f'{"-----":^14}'+f"|{hex(start_address-i*4)}")
+      print('|'+f'{"-----":^14}'+f"|{hex(start_address-i*4)}", file=file)
   if len(stack)>0:
-    print('+--------------+\n')
+    print('+--------------+\n', file=file)
   else:
-    print("stack is empty\n")
+    print("stack is empty\n", file=file)
 
-def print_registers(regs, col):
+def print_registers(regs, col, file):
   if col > 32:
     col = 32
   if col < 1:
     col = 1
-  print("registers:")
+  print("registers:", file=file)
   for i in range(0, len(regs), col):
-    print('+--------------'*col, '+', sep = '')
+    print('+--------------'*col, '+', sep = '', file=file)
     for u in range(col):
       if i+u<32:
-        print('|'+f"{'x'f'{i+u}':<4}" + f'{hex(regs[i+u]):<10}', end = '')
+        print('|'+f"{'x'f'{i+u}':<4}" + f'{hex(regs[i+u]):<10}', end = '', file=file)
       else:
-        print('|'+f"{'':14}", end = '')
-    print('|')
-  print('+--------------'*col,"+\n", sep = '')
+        print('|'+f"{'':14}", end = '', file=file)
+    print('|', file=file)
+  print('+--------------'*col,"+\n", sep = '', file=file)
 
-def print_instruction(address, instruction):
-  print(f"{hex(address)}\t", end = ' ')
+def print_instruction(address, instruction, file):
+  print(f"{hex(address)}\t", end = ' ', file=file)
   operation = instruction.split(" ", 1)[0]
   try:
     operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
   except IndexError:
     operands = []
-  print(operation, ", ".join(operands), "\n")
+  print(operation, ", ".join(operands), "\n", file=file)
 
-rv_simulator("6_21.asm", 32768, mode = "manual")
+rv_simulator("6_21.asm", 32768, mode = "file")
 
