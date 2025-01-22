@@ -3,10 +3,11 @@ import numpy as np
 """
 TODO:
 -file mode
+-debug mode
 -Hz simulation
 -memory simulation
 -more instructions
--more flags in manual mode (such as num formats, reg name formats, quantity of op in one input[o<int>], q of cols in reg table[r<int>], memory slice)
+-more flags in manual mode (such as num formats, reg name formats, memory slice)
 -possibly here will be marks of every stack alloc
 -possibly rewrite all instructions as functions for more convinient pseudo-instractions
 -ctrl+x
@@ -40,12 +41,14 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   stack = []
   simbol_table = dict()
   code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table)
-
+  ops = 0
+  flags = 'ros'
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
-    flags = 'ros'
-    if mode == "manual":
+    
+    if mode == "manual" and ops == 0:
       flags = input(">>>")
+      ops = max_prefix_number(flags[flags.index('o')+1:], 1)
     
     if (mode == "manual" and 'o' in flags) or mode == "default":
       print_instruction(PC[0], instruction)
@@ -59,6 +62,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         break
       else:
           raise ValueError("there is not such instruction")
+      ops-=1
       
     if (mode == "manual" and 'r' in flags) or mode == "default":
         print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8))
@@ -208,5 +212,5 @@ def print_instruction(address, instruction):
     operands = []
   print(operation, ", ".join(operands), "\n")
 
-rv_simulator("6_21.asm", 32768, mode = "default")
+rv_simulator("6_21.asm", 32768, mode = "manual")
 
