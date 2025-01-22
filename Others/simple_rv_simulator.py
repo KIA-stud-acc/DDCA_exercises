@@ -3,6 +3,7 @@ import numpy as np
 """
 TODO:
 -file mode
+-Hz simulation
 -memory simulation
 -more instructions
 -more flags in manual mode (such as num formats, reg name formats, quantity of op in one input[o<int>], q of cols in reg table[r<int>], memory slice)
@@ -10,7 +11,7 @@ TODO:
 -possibly rewrite all instructions as functions for more convinient pseudo-instractions
 -ctrl+x
 """
-def max_substring_number(string:str, default_value:int)->int:
+def max_prefix_number(string:str, default_value:int)->int:
   ret = ""
   for i in string:
     if i.isdigit():
@@ -20,6 +21,7 @@ def max_substring_number(string:str, default_value:int)->int:
   if ret:
     return int(ret)
   return default_value
+
 def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
   code_file:      path to the assembler code file
@@ -41,6 +43,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
 
   while (PC[0]-start_address)/4 < len(code):
     instruction = code[(PC[0]-start_address)>>2]
+    flags = 'ros'
     if mode == "manual":
       flags = input(">>>")
     
@@ -58,7 +61,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
           raise ValueError("there is not such instruction")
       
     if (mode == "manual" and 'r' in flags) or mode == "default":
-        print_registers(registers, max_substring_number(flags[flags.index('r')+1:], 8))
+        print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8))
 
     if (mode == "manual" and 's' in flags) or mode == "default":  
       print_stack(stack, sp)
@@ -154,7 +157,6 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
   pc[0] += 4
   return True
 
-
 def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbol_table: dict) -> None:
   tmp_pc = start_address
   code = []
@@ -163,7 +165,7 @@ def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simb
       if instruction.split('#', 1)[0].strip():
         code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip())
         #print(f"{hex(tmp_pc)}\t{instruction[:-1].split('#', 1)[0]}") #print assembler code with addresses of the instructions in ram
-        if ':' in instruction:
+        if ':' in instruction.split('#', 1)[0].strip():
           simbol_table[instruction[:instruction.index(':')]] = tmp_pc
         tmp_pc += 4
   return code
@@ -179,7 +181,7 @@ def print_stack(stack, start_address):
   if len(stack)>0:
     print('+--------------+\n')
   else:
-    print("stack is empty")
+    print("stack is empty\n")
 
 def print_registers(regs, col):
   if col > 32:
@@ -206,5 +208,5 @@ def print_instruction(address, instruction):
     operands = []
   print(operation, ", ".join(operands), "\n")
 
-rv_simulator("6_21.asm", 32768, mode = "manual")
+rv_simulator("6_21.asm", 32768, mode = "default")
 
