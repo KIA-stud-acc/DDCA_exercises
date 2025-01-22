@@ -1,6 +1,26 @@
 import numpy as np
 
-def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
+"""
+TODO:
+-file mode
+-memory simulation
+-more instructions
+-more flags in manual mode (such as num formats, reg name formats, quantity of op in one input[o<int>], q of cols in reg table[r<int>], memory slice)
+-possibly here will be marks of every stack alloc
+-possibly rewrite all instructions as functions for more convinient pseudo-instractions
+-ctrl+x
+"""
+def max_substring_number(string:str, default_value:int)->int:
+  ret = ""
+  for i in string:
+    if i.isdigit():
+      ret+=i
+    else:
+      break
+  if ret:
+    return int(ret)
+  return default_value
+def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
   code_file:      path to the assembler code file
   start_address:  address of the first instuction in the assembler program
@@ -36,8 +56,10 @@ def rv_interpreter(code_file: str, start_address: int = 0, sp: int = 4294967292,
         break
       else:
           raise ValueError("there is not such instruction")
+      
     if (mode == "manual" and 'r' in flags) or mode == "default":
-      print_registers(registers, 9)
+        print_registers(registers, max_substring_number(flags[flags.index('r')+1:], 8))
+
     if (mode == "manual" and 's' in flags) or mode == "default":  
       print_stack(stack, sp)
   print("Program is ended")
@@ -160,7 +182,11 @@ def print_stack(stack, start_address):
     print("stack is empty")
 
 def print_registers(regs, col):
-  print("registers content:")
+  if col > 32:
+    col = 32
+  if col < 1:
+    col = 1
+  print("registers:")
   for i in range(0, len(regs), col):
     print('+--------------'*col, '+', sep = '')
     for u in range(col):
@@ -180,4 +206,5 @@ def print_instruction(address, instruction):
     operands = []
   print(operation, ", ".join(operands), "\n")
 
-rv_interpreter("6_21.asm", 32768, mode = "manual")
+rv_simulator("6_21.asm", 32768, mode = "manual")
+
