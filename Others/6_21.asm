@@ -1,7 +1,7 @@
  # код на языке ассемблера RISC-V
  # f: a0 = a, a1 = b, s4 = j;
 test:  
-       addi x14, x14, 0x4
+       addi x14, x14, 0xffe
        addi a0, zero, 5    # a = 5
        addi a1, zero, 3    # b = 3
        jal  f              # вызов f(5, 3)

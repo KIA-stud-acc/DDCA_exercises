@@ -22,20 +22,27 @@ def max_prefix_number(string:str, default_value:int)->int:
     return int(ret)
   return default_value
 
+def sign_ext(num, const_len = 12):
+  if num//(2**(const_len-1))==1:
+    return num + np.uint32(-2**const_len)
+  else:
+    return num
+  
 def num_finder(str_num:str, const_len:int = 12)->int:
   try:
-    return np.int32(int(str_num, 10)%(2**const_len))
+    ret = np.uint32(int(str_num, 10))
   except ValueError:
     try:
-      return np.int32(int(str_num, 2)%(2**const_len))
+      ret = np.uint32(int(str_num, 2))
     except ValueError:
       try:
-        return np.int32(int(str_num, 8)%(2**const_len))
+        ret = np.uint32(int(str_num, 8))
       except ValueError:
         try:
-          return np.int32(int(str_num, 16)%(2**const_len))
+          ret = np.uint32(int(str_num, 16))
         except ValueError:
           raise ValueError("incorrect number format")
+  return np.uint32(ret%(2**const_len))
 
 def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
@@ -49,8 +56,8 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   "debug"   - auto, dont ptinting state of stack and registers, stop after mark "*" in the beginning of the string and print state, after waits for manual directions
   ""
   '''
-  registers = [np.int32(0)]*32
-  registers[14] = np.int32(np.uint32(int("0xFFFFFFFF",16)))
+  registers = [np.uint32(0)]*32
+  registers[14] = np.uint32(int("0xFFFFFFFF",16))
   PC = [start_address]
   registers[2] = sp
   stack = []
@@ -136,7 +143,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
 
   match operation:
     case "addi":
-      registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + num_finder(operands[2])
+      registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] + sign_ext(num_finder(operands[2])))
     case "add":
       registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + registers[name_of_registers[operands[2]]]
     case "jal":
