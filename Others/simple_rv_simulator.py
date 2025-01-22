@@ -22,18 +22,18 @@ def max_prefix_number(string:str, default_value:int)->int:
     return int(ret)
   return default_value
 
-def num_finder(str_num:str)->int:
+def num_finder(str_num:str, const_len:int = 12)->int:
   try:
-    return int(str_num, 10)
+    return np.int32(int(str_num, 10)%(2**const_len))
   except ValueError:
     try:
-      return int(str_num, 2)
+      return np.int32(int(str_num, 2)%(2**const_len))
     except ValueError:
       try:
-        return int(str_num, 8)
+        return np.int32(int(str_num, 8)%(2**const_len))
       except ValueError:
         try:
-          return int(str_num, 16)
+          return np.int32(int(str_num, 16)%(2**const_len))
         except ValueError:
           raise ValueError("incorrect number format")
 
@@ -50,6 +50,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   ""
   '''
   registers = [np.int32(0)]*32
+  registers[14] = np.int32(np.uint32(int("0xFFFFFFFF",16)))
   PC = [start_address]
   registers[2] = sp
   stack = []
@@ -218,7 +219,7 @@ def print_registers(regs, col, file):
     print('+--------------'*col, '+', sep = '', file=file)
     for u in range(col):
       if i+u<32:
-        print('|'+f"{'x'f'{i+u}':<4}" + f'{hex(regs[i+u]):<10}', end = '', file=file)
+        print('|'+f"{'x'f'{i+u}':<4}" + f'{hex(np.uint32(regs[i+u])):<10}', end = '', file=file)
       else:
         print('|'+f"{'':14}", end = '', file=file)
     print('|', file=file)
