@@ -2,7 +2,6 @@ import numpy as np
 
 """
 TODO:
--file mode
 -debug mode
 -Hz simulation
 -memory simulation
@@ -22,6 +21,21 @@ def max_prefix_number(string:str, default_value:int)->int:
   if ret:
     return int(ret)
   return default_value
+
+def num_finder(str_num:str)->int:
+  try:
+    return int(str_num, 10)
+  except ValueError:
+    try:
+      return int(str_num, 2)
+    except ValueError:
+      try:
+        return int(str_num, 8)
+      except ValueError:
+        try:
+          return int(str_num, 16)
+        except ValueError:
+          raise ValueError("incorrect number format")
 
 def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
@@ -52,7 +66,8 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
     
     if mode == "manual" and ops == 0:
       flags = input(">>>")
-      ops = max_prefix_number(flags[flags.index('o')+1:], 1)
+      if 'o' in flags:
+        ops = max_prefix_number(flags[flags.index('o')+1:], 1)
     
     if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file":
       print_instruction(PC[0], instruction, file)
@@ -120,7 +135,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
 
   match operation:
     case "addi":
-      registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + int(operands[2])
+      registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + num_finder(operands[2])
     case "add":
       registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + registers[name_of_registers[operands[2]]]
     case "jal":
@@ -136,19 +151,19 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
     case "sw": #здесь будет только урезанная версия, пригодная только для работы со стеком
       op_reg = operands[1].split('(')[1][:-1]
       op_imm = operands[1].split('(')[0]
-      stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][0] = operands[0]
-      stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1] = registers[name_of_registers[operands[0]]]
+      stack[((start_pos_stack - (num_finder(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][0] = operands[0]
+      stack[((start_pos_stack - (num_finder(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1] = registers[name_of_registers[operands[0]]]
     case "lw": #аналогично sw
       op_reg = operands[1].split('(')[1][:-1]
       op_imm = operands[1].split('(')[0]
-      registers[name_of_registers[operands[0]]] = stack[((start_pos_stack - (int(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1]
+      registers[name_of_registers[operands[0]]] = stack[((start_pos_stack - (num_finder(op_imm,16) + registers[name_of_registers[op_reg]]))>>2)-1][1]
     case "jalr":
       if len(operands) == 1:
         registers[name_of_registers["ra"]] = pc[0] + 4 
         pc[0] = registers[name_of_registers[operands[0]]]-4
       else:
         registers[name_of_registers[operands[0]]] = pc[0] + 4
-        pc[0] = registers[name_of_registers[operands[1]]] + int(operands[2],16)-4
+        pc[0] = registers[name_of_registers[operands[1]]] + num_finder(operands[2],16)-4
     case "jr":
       registers[name_of_registers["zero"]] = pc[0] + 4 
       pc[0] = registers[name_of_registers[operands[0]]]-4
@@ -218,5 +233,5 @@ def print_instruction(address, instruction, file):
     operands = []
   print(operation, ", ".join(operands), "\n", file=file)
 
-rv_simulator("6_21.asm", 32768, mode = "file")
+rv_simulator("6_21.asm", 32768, mode = "manual")
 
