@@ -1,12 +1,11 @@
 import numpy as np
 import warnings
+import argparse
 
 warnings.filterwarnings("ignore", r'overflow encountered in scalar add', category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 """
 TODO:
--debug mode
--a(auto) flag for manual
 -Hz simulation
 -условные остановки
 -внеочередное исполнение комманд
@@ -60,7 +59,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   "default" - after each operation both stack and registers will be printed automatically
   "manual"  - each operation only after input (o, s, r and combinations) 
   "file"    - as default, but output in file "report.txt"
-  "debug"   - auto, dont ptinting state of stack and registers, stop after mark "*" in the beginning of the string and print state, after waits for manual directions
+  "debug"   - auto, dont ptinting state of stack and registers, stop after mark "*" in the beginning of the string, after waits for manual directions
   ""
   '''
   registers = [np.uint32(0)]*32
@@ -219,7 +218,6 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
   with open(code_file, "r") as asm_file:
     while instruction := asm_file.readline():
       if instruction.split('#', 1)[0].strip():
-        #print(f"{hex(tmp_pc)}\t{instruction[:-1].split('#', 1)[0]}") #print assembler code with addresses of the instructions in ram
         if ':' in instruction.split('#', 1)[0].strip():
           simbol_table[instruction[:instruction.index(':')]] = tmp_pc
         if instruction.split('#', 1)[0].strip()[-1] != ':':
@@ -274,5 +272,12 @@ def print_instruction(address, instruction, file, simbol_table:dict):
       print(f"({hex(tmp)})", file=file, end = '')
   print('\n', file=file)
 
-rv_simulator("6_21.asm", 32768, mode = "debug")
 
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.add_argument("file", nargs=1)
+  parser.add_argument("-m", "--mode", default="default")
+  parser.add_argument("-s", "--start_address", default=0, type=int)
+  args = parser.parse_args()
+
+  rv_simulator(args.file[0], args.start_address, mode = args.mode)
