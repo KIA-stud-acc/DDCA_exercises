@@ -1,9 +1,14 @@
 import numpy as np
+import warnings
 
+warnings.filterwarnings("ignore", r'overflow encountered in scalar add', category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 """
 TODO:
 -debug mode
 -Hz simulation
+-условные остановки
+-внеочередное исполнение комманд
 -memory simulation
 -more instructions
 -more flags in manual mode (such as num formats, reg name formats, memory slice)
@@ -11,6 +16,7 @@ TODO:
 -possibly rewrite all instructions as functions for more convinient pseudo-instractions
 -ctrl+x
 """
+
 def max_prefix_number(string:str, default_value:int)->int:
   ret = ""
   for i in string:
@@ -78,7 +84,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         ops = max_prefix_number(flags[flags.index('o')+1:], 1)
     
     if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file":
-      print_instruction(PC[0], instruction, file)
+      print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
         if ((sp - registers[2]) >> 2) - len(stack) > 0:
           for i in range((((sp - registers[2]) >> 2) - len(stack))):
@@ -189,7 +195,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
   pc[0] += 4
   return True
 
-def  parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbol_table: dict) -> None:
+def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbol_table: dict) -> None:
   tmp_pc = start_address
   code = []
   with open(code_file, "r") as asm_file:
@@ -232,14 +238,19 @@ def print_registers(regs, col, file):
     print('|', file=file)
   print('+--------------'*col,"+\n", sep = '', file=file)
 
-def print_instruction(address, instruction, file):
+def print_instruction(address, instruction, file, simbol_table:dict):
   print(f"{hex(address)}\t", end = ' ', file=file)
   operation = instruction.split(" ", 1)[0]
   try:
     operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
   except IndexError:
     operands = []
-  print(operation, ", ".join(operands), "\n", file=file)
+  print(operation, ", ".join(operands), file=file, end=' ')
+  if operands:
+    tmp = simbol_table.get(operands[-1], -1)
+    if tmp != -1:
+      print(f"({hex(tmp)})", file=file, end = '')
+    print('\n', file=file)
 
 rv_simulator("6_21.asm", 32768, mode = "manual")
 
