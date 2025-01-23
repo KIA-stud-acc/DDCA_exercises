@@ -6,6 +6,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 """
 TODO:
 -debug mode
+-a(auto) flag for manual
 -Hz simulation
 -условные остановки
 -внеочередное исполнение комманд
@@ -63,7 +64,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   ""
   '''
   registers = [np.uint32(0)]*32
-  registers[14] = np.uint32(int("0xFFFFFFFF",16))
+  registers[14] = np.uint32(int("0xFFFFFFFF",16))     #for testing purposes
   PC = [start_address]
   registers[2] = sp
   stack = []
@@ -71,7 +72,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   debug_marks = dict()
   code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table, debug_marks)
   ops = 0
-  flags = 'ros'
+  flags = ''
   if mode == "file":
     file = open("report.txt", "w")
   else:
@@ -82,9 +83,12 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
     if mode == "manual" and ops == 0:
       flags = input(">>>")
       if 'o' in flags:
-        ops = max_prefix_number(flags[flags.index('o')+1:], 1)
-    
-    if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file":
+        if flags[flags.index('o')+1:flags.index('o')+2] == '+':
+          ops = -1
+        else:
+          ops = max_prefix_number(flags[flags.index('o')+1:], 1)
+        
+    if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file" or (mode == "debug" and True):
       print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
         if ((sp - registers[2]) >> 2) - len(stack) > 0:
