@@ -74,6 +74,9 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   if mode == "debug":  
     flags = 'o'
     ops = -1
+  elif mode == "default" or mode == "file":
+    flags = 'ors'
+    ops = -1
   else:
     flags = ''
     ops = 0
@@ -94,7 +97,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         else:
           ops = max_prefix_number(flags[flags.index('o')+1:], 1)
         
-    if ((mode == "manual" or mode == "debug") and 'o' in flags) or mode == "default" or mode == "file":
+    if 'o' in flags:
       print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
         if ((sp - registers[2]) >> 2) - len(stack) > 0:
@@ -108,13 +111,17 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
           raise ValueError("there is not such instruction")
       ops-=1
       
-    if ((mode == "manual" or mode == "debug") and 'r' in flags) or mode == "default" or mode == "file":
+    if 'r' in flags:
         print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8), file)
 
-    if ((mode == "manual" or mode == "debug") and 's' in flags) or mode == "default" or mode == "file":  
+    if 's' in flags:  
       print_stack(stack, sp, file)
     print("-"*50, '\n', file = file)
   print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
+  try:
+    file.close()
+  except AttributeError:
+    pass
 
 name_of_registers = {"zero":0,  "x0":  0,
                        "ra":  1,  "x1":  1,
