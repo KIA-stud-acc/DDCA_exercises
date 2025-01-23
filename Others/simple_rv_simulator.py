@@ -71,16 +71,22 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   simbol_table = dict()
   debug_marks = dict()
   code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table, debug_marks)
-  ops = 0
-  flags = ''
+  if mode == "debug":  
+    flags = 'o'
+    ops = -1
+  else:
+    flags = ''
+    ops = 0
   if mode == "file":
     file = open("report.txt", "w")
   else:
     file = None
   while (PC[0]-start_address)/4 < len(code):
+    if mode == "debug" and debug_marks.get(PC[0]):
+      ops = 0
     instruction = code[(PC[0]-start_address)>>2]
     
-    if mode == "manual" and ops == 0:
+    if (mode == "manual" or mode == "debug") and ops == 0:
       flags = input(">>>")
       if 'o' in flags:
         if flags[flags.index('o')+1:flags.index('o')+2] == '+':
@@ -88,7 +94,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         else:
           ops = max_prefix_number(flags[flags.index('o')+1:], 1)
         
-    if (mode == "manual" and 'o' in flags) or mode == "default" or mode == "file" or (mode == "debug" and True):
+    if ((mode == "manual" or mode == "debug") and 'o' in flags) or mode == "default" or mode == "file":
       print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, stack, simbol_table, PC, sp)) == True:
         if ((sp - registers[2]) >> 2) - len(stack) > 0:
@@ -102,10 +108,10 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
           raise ValueError("there is not such instruction")
       ops-=1
       
-    if (mode == "manual" and 'r' in flags) or mode == "default" or mode == "file":
+    if ((mode == "manual" or mode == "debug") and 'r' in flags) or mode == "default" or mode == "file":
         print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8), file)
 
-    if (mode == "manual" and 's' in flags) or mode == "default" or mode == "file":  
+    if ((mode == "manual" or mode == "debug") and 's' in flags) or mode == "default" or mode == "file":  
       print_stack(stack, sp, file)
     print("-"*50, '\n', file = file)
   print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
@@ -261,5 +267,5 @@ def print_instruction(address, instruction, file, simbol_table:dict):
       print(f"({hex(tmp)})", file=file, end = '')
   print('\n', file=file)
 
-rv_simulator("6_21.asm", 32768, mode = "manual")
+rv_simulator("6_21.asm", 32768, mode = "debug")
 
