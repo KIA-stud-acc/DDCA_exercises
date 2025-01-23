@@ -68,7 +68,8 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   registers[2] = sp
   stack = []
   simbol_table = dict()
-  code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table)
+  debug_marks = dict()
+  code = parse_assembler_and_find_all_marks(code_file, start_address, simbol_table, debug_marks)
   ops = 0
   flags = 'ros'
   if mode == "file":
@@ -195,7 +196,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
   pc[0] += 4
   return True
 
-def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbol_table: dict) -> None:
+def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbol_table: dict, debug_marks:dict) -> None:
   tmp_pc = start_address
   code = []
   with open(code_file, "r") as asm_file:
@@ -205,7 +206,11 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
         if ':' in instruction.split('#', 1)[0].strip():
           simbol_table[instruction[:instruction.index(':')]] = tmp_pc
         if instruction.split('#', 1)[0].strip()[-1] != ':':
-          code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip())
+          if instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip()[0] == '*':
+            debug_marks[tmp_pc] = True
+            code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1][1:].strip())
+          else:
+            code.append(instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip())
           tmp_pc += 4
   return code
 
@@ -250,7 +255,7 @@ def print_instruction(address, instruction, file, simbol_table:dict):
     tmp = simbol_table.get(operands[-1], -1)
     if tmp != -1:
       print(f"({hex(tmp)})", file=file, end = '')
-    print('\n', file=file)
+  print('\n', file=file)
 
 rv_simulator("6_21.asm", 32768, mode = "manual")
 
