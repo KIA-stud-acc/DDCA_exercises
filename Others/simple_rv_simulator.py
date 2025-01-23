@@ -1,6 +1,8 @@
 import numpy as np
 import warnings
 import argparse
+import rv_instructions
+
 
 warnings.filterwarnings("ignore", r'overflow encountered in scalar add', category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -164,6 +166,7 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
   except IndexError:
     operands = None
 
+  #getattr(rv_instructions, operation)()
   match operation:
     case "addi":
       registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] + sign_ext(num_finder(operands[2])))
@@ -200,6 +203,15 @@ def do_some_operation(instruction: str, registers: list, stack: list, simbol_tab
       pc[0] = registers[name_of_registers[operands[0]]]-4
     case "bne":
       if (registers[name_of_registers[operands[0]]] != registers[name_of_registers[operands[1]]]):
+        pc[0] = simbol_table[operands[2]]-4
+    case "beq":
+      if (registers[name_of_registers[operands[0]]] == registers[name_of_registers[operands[1]]]):
+        pc[0] = simbol_table[operands[2]]-4
+    case "blt":
+      if (registers[name_of_registers[operands[0]]] < registers[name_of_registers[operands[1]]]):
+        pc[0] = simbol_table[operands[2]]-4
+    case "bge":
+      if (registers[name_of_registers[operands[0]]] >= registers[name_of_registers[operands[1]]]):
         pc[0] = simbol_table[operands[2]]-4
     case "nop":
       pass
@@ -273,7 +285,11 @@ def print_instruction(address, instruction, file, simbol_table:dict):
   print('\n', file=file)
 
 
+def test():
+  print('AAAAAAAAAAAAAAAAAAA')
+
 if __name__ == "__main__":
+  globals()['test']()
   parser = argparse.ArgumentParser()
   parser.add_argument("file", nargs=1)
   parser.add_argument("-m", "--mode", default="default")
