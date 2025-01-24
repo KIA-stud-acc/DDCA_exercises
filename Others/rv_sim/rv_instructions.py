@@ -28,10 +28,7 @@ def sw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) ->
   op_imm = operands[1].split('(')[0]
   memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)] = ["", 0] #либо создаю, если не было, либо зануляю без эффекта
   memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][0] = operands[0]
-  if operands[0] == '??':
-    memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][1] = np.uint32(random.randint(0, 4_294_967_295))
-  else:
-    memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][1] = registers[name_of_registers[operands[0]]]
+  memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][1] = registers[name_of_registers[operands[0]]]
 
 
 
@@ -42,7 +39,7 @@ def lw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) ->
   if memory.get(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32), False):
     pass
   else:
-    sw(["??", operands[1]], registers, memory, simbol_table, pc)
+    memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)] = ["??", np.uint32(random.randint(0, 4_294_967_295))]
   registers[name_of_registers[operands[0]]] = memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][1]
 
 def jalr(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:

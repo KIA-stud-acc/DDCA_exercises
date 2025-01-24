@@ -3,6 +3,7 @@ import warnings
 import argparse
 import rv_instructions
 from extras import max_prefix_number, num_finder
+import random 
 
 warnings.filterwarnings("ignore", r'overflow encountered in scalar add', category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -71,11 +72,6 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
       print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, memory, simbol_table, PC)) == True:
         pass
-        """ if ((sp - registers[2]) >> 2) - len(stack) > 0:
-          for i in range((((sp - registers[2]) >> 2) - len(stack))):
-            stack = stack + [[None, None]]
-        else:
-          stack = stack[:((sp - registers[2]) >> 2)] """
       elif res == "stop":
         break
       else:
@@ -86,7 +82,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8), file)
 
     if 's' in flags:  
-      print_stack(memory, registers[2], file)
+      print_stack(memory, registers[2], sp, file)
     print("-"*50, '\n', file = file)
   print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
   try:
@@ -132,21 +128,30 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
           tmp_pc += 4
   return code
 
-def print_stack(memory, sp, file):
-  for i in memory:
-    print(hex(i), memory[i][0], hex(memory[i][1]))
 
-  """  print("stack:", file=file)
-  for i in range(len(stack)):
+
+
+def print_stack(memory, sp, start_address, file):
+
+  print("stack:", file=file)
+  for i in range(start_address-4, sp-4, -4):
     print('+--------------+', file=file)
-    try:
-      print('|'+f"{f'{stack[i][0]} ' f'{hex(stack[i][1])}':<14}"+f"|{hex(start_address-i*4)}", file=file)
-    except TypeError:
-      print('|'+f'{"-----":^14}'+f"|{hex(start_address-i*4)}", file=file)
-  if len(stack)>0:
+
+    if memory.get(i, False):
+      pass
+    else:
+      memory[i] = ["??", np.uint32(random.randint(0, 4_294_967_295))]
+
+    print('|'+f"{f'{memory[i][0]} ' f'{hex(memory[i][1])}':<14}"+f"|{hex(i)}", file=file)
+
+  if sp != start_address:
     print('+--------------+\n', file=file)
   else:
-    print("stack is empty\n", file=file) """
+    print("stack is empty\n", file=file)
+
+
+
+
 
 def print_registers(regs, col, file):
   if col > 32:
