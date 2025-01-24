@@ -36,7 +36,6 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   registers[14] = np.uint32(int("0xFFFFFFFF",16))     #for testing purposes
   PC            = [start_address]
   registers[2]  = sp
-  stack         = []
   memory        = dict()
   simbol_table  = dict()
   debug_marks   = dict()
@@ -71,11 +70,12 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
     if 'o' in flags:
       print_instruction(PC[0], instruction, file, simbol_table)
       if (res := do_some_operation(instruction, registers, memory, simbol_table, PC)) == True:
-        if ((sp - registers[2]) >> 2) - len(stack) > 0:
+        pass
+        """ if ((sp - registers[2]) >> 2) - len(stack) > 0:
           for i in range((((sp - registers[2]) >> 2) - len(stack))):
             stack = stack + [[None, None]]
         else:
-          stack = stack[:((sp - registers[2]) >> 2)]
+          stack = stack[:((sp - registers[2]) >> 2)] """
       elif res == "stop":
         break
       else:
@@ -86,7 +86,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
         print_registers(registers, max_prefix_number(flags[flags.index('r')+1:], 8), file)
 
     if 's' in flags:  
-      print_stack(stack, sp, file)
+      print_stack(memory, registers[2], file)
     print("-"*50, '\n', file = file)
   print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
   try:
@@ -132,8 +132,11 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
           tmp_pc += 4
   return code
 
-def print_stack(stack, start_address, file):
-  print("stack:", file=file)
+def print_stack(memory, sp, file):
+  for i in memory:
+    print(hex(i), memory[i][0], hex(memory[i][1]))
+
+  """  print("stack:", file=file)
   for i in range(len(stack)):
     print('+--------------+', file=file)
     try:
@@ -143,7 +146,7 @@ def print_stack(stack, start_address, file):
   if len(stack)>0:
     print('+--------------+\n', file=file)
   else:
-    print("stack is empty\n", file=file)
+    print("stack is empty\n", file=file) """
 
 def print_registers(regs, col, file):
   if col > 32:

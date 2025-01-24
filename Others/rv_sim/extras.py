@@ -53,16 +53,16 @@ def sign_ext(num, const_len = 12):
   
 def num_finder(str_num:str, const_len:int = 12)->int:
   try:
-    ret = np.uint32(int(str_num, 10))
+    ret = int(str_num)
   except ValueError:
     try:
-      ret = np.uint32(int(str_num, 2))
+      ret = int(str_num, 2)
     except ValueError:
       try:
-        ret = np.uint32(int(str_num, 8))
+        ret = int(str_num, 8)
       except ValueError:
         try:
-          ret = np.uint32(int(str_num, 16))
+          ret = int(str_num, 16)
         except ValueError:
           raise ValueError("incorrect number format")
   return np.uint32(ret%(2**const_len))
