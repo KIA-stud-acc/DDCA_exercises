@@ -1,0 +1,5 @@
+a)  srai, ori, lw
+b)  I
+c)  0x0C не дополняется
+    0xFFFFFABC
+    0x0000005C

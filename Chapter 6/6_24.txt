@@ -1,5 +1,5 @@
-a) addi, srli, sw
-b) I 
+a)  addi, srli, sw
+b)  I 
 c)  0x0000001C
     0x0E        не дополняется
     0x00000010  
