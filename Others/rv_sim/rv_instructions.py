@@ -8,6 +8,9 @@ def addi(operands: list, registers: list, memory: dict, simbol_table: dict, pc) 
 def add(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] + registers[name_of_registers[operands[2]]]
 
+def sub(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] - registers[name_of_registers[operands[2]]]
+
 def jal(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   if len(operands) == 1:
     registers[name_of_registers["ra"]] = pc[0] + 4 
@@ -49,20 +52,29 @@ def jr(operands: list, registers: list, memory: dict, simbol_table: dict, pc) ->
   pc[0] = registers[name_of_registers[operands[0]]]-4
 
 def bne(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
-  if (registers[name_of_registers[operands[0]]] != registers[name_of_registers[operands[1]]]):
+  if (np.int32(registers[name_of_registers[operands[0]]]) != np.int32(registers[name_of_registers[operands[1]]])):
     pc[0] = simbol_table[operands[2]]-4
 
 def beq(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
-  if (registers[name_of_registers[operands[0]]] == registers[name_of_registers[operands[1]]]):
+  if (np.int32(registers[name_of_registers[operands[0]]]) == np.int32(registers[name_of_registers[operands[1]]])):
     pc[0] = simbol_table[operands[2]]-4
   
 def blt(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
-  if (registers[name_of_registers[operands[0]]] < registers[name_of_registers[operands[1]]]):
+  if (np.int32(registers[name_of_registers[operands[0]]]) < np.int32(registers[name_of_registers[operands[1]]])):
     pc[0] = simbol_table[operands[2]]-4
 
 def bge(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
-  if (registers[name_of_registers[operands[0]]] >= registers[name_of_registers[operands[1]]]):
+  if (np.int32(registers[name_of_registers[operands[0]]]) >= np.int32(registers[name_of_registers[operands[1]]])):
     pc[0] = simbol_table[operands[2]]-4
 
 def nop(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   pass
+
+def call(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  jal(operands, registers, memory, simbol_table, pc)
+
+def slli(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  shift = num_finder(operands[2])
+  if shift > 31:
+    raise ValueError
+  registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] << shift)

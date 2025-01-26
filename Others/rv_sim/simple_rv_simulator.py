@@ -15,12 +15,11 @@ TODO:
 -Hz simulation
 -условные остановки
 -внеочередное исполнение комманд
--memory simulation
 -more instructions
 -more flags in manual mode (such as num formats, reg name formats, memory slice)
 -possibly here will be marks of every stack alloc
--possibly rewrite all instructions as functions for more convinient pseudo-instractions
 -ctrl+x
+-maybe here will be assembler directives
 """
 
 def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
