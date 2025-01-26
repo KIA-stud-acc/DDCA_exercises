@@ -10,8 +10,8 @@ test:
 loop:  ret        # вечный цикл
 f:     addi sp, sp, -16    # создать фрейм в стеке
        
-       lw  a1, 0xC(sp)  
-       lw a1, 0xC(sp) 
+       lw  a2, 0xC(sp)  
+       lw a2, 0xC(sp) 
        sw   a0, 0xC(sp)    # сохранить a0
        sw   a1, 0x8(sp)    # сохранить a1
        sw   ra, 0x4(sp)    # сохранить ra

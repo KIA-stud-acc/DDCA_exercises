@@ -20,18 +20,12 @@ def j(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> 
   registers[name_of_registers["x0"]] = pc[0] + 4 #я понимаю, что это необязательно прописывать, но почему бы и нет?
   pc[0] = simbol_table[operands[0]]-4
 
-
-
-
 def sw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   op_reg = operands[1].split('(')[1][:-1]
   op_imm = operands[1].split('(')[0]
   memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)] = ["", 0] #либо создаю, если не было, либо зануляю без эффекта
   memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][0] = operands[0]
   memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)][1] = registers[name_of_registers[operands[0]]]
-
-
-
 
 def lw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   op_reg = operands[1].split('(')[1][:-1]

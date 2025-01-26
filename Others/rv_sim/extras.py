@@ -51,7 +51,7 @@ def sign_ext(num, const_len = 12):
   else:
     return num
   
-def num_finder(str_num:str, const_len:int = 12)->int:
+def num_finder(str_num:str, const_len:int = 12)->np.uint32:
   try:
     ret = int(str_num)
   except ValueError:

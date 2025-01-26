@@ -7,6 +7,9 @@ import random
 
 warnings.filterwarnings("ignore", r'overflow encountered in scalar add', category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+MAX_CELLS_IN_MEMORY_PRINT = 100
+
 """
 TODO:
 -Hz simulation
@@ -83,6 +86,22 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
 
     if 's' in flags:  
       print_stack(memory, registers[2], sp, file)
+
+    if 'm' in flags:
+      while True:
+        try:
+          start_addr = num_finder(input("input start address of memory print: "), 32)
+          break
+        except ValueError:
+          pass
+      num = 10000
+      while -MAX_CELLS_IN_MEMORY_PRINT>num or num>MAX_CELLS_IN_MEMORY_PRINT:
+        try:
+          num = np.int32(num_finder(input("input quantity of cells printed([-100:100]): "), 32))
+        except ValueError:
+          pass
+      print_memory(memory, start_addr, num, file)
+
     print("-"*50, '\n', file = file)
   print('!'*20,'\n',"Program is ended\n",'!'*20, sep='',file=file)
   try:
@@ -128,9 +147,6 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
           tmp_pc += 4
   return code
 
-
-
-
 def print_stack(memory, sp, start_address, file):
 
   print("stack:", file=file)
@@ -148,10 +164,6 @@ def print_stack(memory, sp, start_address, file):
     print('+--------------+\n', file=file)
   else:
     print("stack is empty\n", file=file)
-
-
-
-
 
 def print_registers(regs, col, file):
   if col > 32:
@@ -182,6 +194,24 @@ def print_instruction(address, instruction, file, simbol_table:dict):
     if tmp != -1:
       print(f"({hex(tmp)})", file=file, end = '')
   print('\n', file=file)
+
+def print_memory(memory, start_address, num_of_cells, file):
+  print("RAM:", file=file)
+  for i in range(start_address, start_address+num_of_cells*4, np.sign(num_of_cells)*4):
+    i = i % (2**32)
+    print('+--------------+', file=file)
+
+    if memory.get(i, False):
+      pass
+    else:
+      memory[i] = ["??", np.uint32(random.randint(0, 4_294_967_295))]
+
+    print('|'+f"{f'{memory[i][0]} ' f'{hex(memory[i][1])}':<14}"+f"|{hex(i)}", file=file)
+
+  if num_of_cells:
+    print('+--------------+\n', file=file)
+  else:
+    print("you print zero cells of memory\n", file=file)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
