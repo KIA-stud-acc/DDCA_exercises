@@ -78,3 +78,13 @@ def slli(operands: list, registers: list, memory: dict, simbol_table: dict, pc) 
   if shift > 31:
     raise ValueError
   registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] << shift)
+
+def xori(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] ^ sign_ext(num_finder(operands[2])))
+
+def andi(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  registers[name_of_registers[operands[0]]] = np.uint32(registers[name_of_registers[operands[1]]] & sign_ext(num_finder(operands[2])))
+
+def slt(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  registers[name_of_registers[operands[0]]] = np.uint32(np.int32(registers[name_of_registers[operands[1]]]) < np.int32( registers[name_of_registers[operands[2]]]))
+

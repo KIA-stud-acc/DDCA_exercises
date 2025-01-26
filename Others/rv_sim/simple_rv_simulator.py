@@ -137,7 +137,7 @@ def parse_assembler_and_find_all_marks(code_file: str, start_address: int, simbo
     while instruction := asm_file.readline():
       if instruction.split('#', 1)[0].strip():
         if ':' in instruction.split('#', 1)[0].strip():
-          simbol_table[instruction[:instruction.index(':')]] = tmp_pc
+          simbol_table[instruction[:instruction.index(':')].strip()] = tmp_pc
         if instruction.split('#', 1)[0].strip()[-1] != ':':
           if instruction[:-1].split('#', 1)[0].split(':', 1)[-1].strip()[0] == '*':
             debug_marks[tmp_pc] = True
