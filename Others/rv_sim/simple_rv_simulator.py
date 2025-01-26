@@ -23,7 +23,6 @@ TODO:
 -ctrl+x
 """
 
-
 def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, mode: str = "default") -> None: 
   '''
   code_file:      path to the assembler code file
@@ -37,7 +36,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   ""
   '''
   registers     = [np.uint32(0)]*32
-  registers[14] = np.uint32(int("0xFFFFFFFF",16))     #for testing purposes
+  #registers[14] = np.uint32(int("0xFFFFFFFF",16))     #for testing purposes
   PC            = [start_address]
   registers[2]  = sp
   memory        = dict()
@@ -51,9 +50,11 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
   elif mode == "default" or mode == "file":
     flags = 'ors'
     ops = -1
-  else:
+  elif mode == "manual":
     flags = ''
     ops = 0
+  else:
+    raise ValueError("There is not such mode")
   if mode == "file":
     file = open("report.txt", "w")
   else:
