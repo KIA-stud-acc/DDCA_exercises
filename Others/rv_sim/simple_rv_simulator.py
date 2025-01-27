@@ -222,4 +222,4 @@ if __name__ == "__main__":
   parser.add_argument("-m", "--mode", default="default")
   parser.add_argument("-s", "--start_address", default=0, type=str)
   args = parser.parse_args()
-  rv_simulator(args.file[0], num_finder(args.start_address, 32), mode = args.mode, sp = num_finder("0x8000", 32))
+  rv_simulator(args.file[0], num_finder(args.start_address, 32), mode = args.mode, sp = num_finder("0xbff00100", 32))
