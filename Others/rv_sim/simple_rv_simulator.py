@@ -111,16 +111,19 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
 
 
 def do_some_operation(instruction: str, registers: list, memory: dict, simbol_table: dict, pc) -> bool|str:
-  
   operation = instruction.split(" ", 1)[0]
-
-  if operation == "ret":
-    return "stop"
   
   try:
     operands = [i.strip() for i in instruction.split(' ', 1)[1].split(',')]
   except IndexError:
     operands = None
+
+  try:
+    if (operation == "ret" or (operation == "jr" and operands[0] == "ra")) and registers[1]==np.int32(0):
+      return "stop"
+  except IndexError:
+    pass
+  
   try:
     getattr(rv_instructions, operation)(operands, registers, memory, simbol_table, pc)
   except AttributeError:

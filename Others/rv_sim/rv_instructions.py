@@ -88,3 +88,5 @@ def andi(operands: list, registers: list, memory: dict, simbol_table: dict, pc) 
 def slt(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   registers[name_of_registers[operands[0]]] = np.uint32(np.int32(registers[name_of_registers[operands[1]]]) < np.int32( registers[name_of_registers[operands[2]]]))
 
+def mul(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
+  registers[name_of_registers[operands[0]]] = registers[name_of_registers[operands[1]]] * registers[name_of_registers[operands[2]]]
