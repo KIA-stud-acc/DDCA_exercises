@@ -7,14 +7,14 @@ initArray:
   sw   t0, 0(a0)
   addi t0, zero, 3
   sw   t0, 4(a0)
-  addi t0, zero, -1
+*  addi t0, zero, -1
   sw   t0, 8(a0)
   addi t0, zero, 5
   sw   t0, 12(a0)
   addi t0, zero, -10
   sw   t0, 16(a0)
   addi t0, zero, -2
-  sw   t0, 20(a0)
+*  sw   t0, 20(a0)
   addi t0, zero, 5
   sw   t0, 24(a0)
   addi t0, zero, -1

@@ -26,18 +26,18 @@ def j(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> 
 def sw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   op_reg = operands[1].split('(')[1][:-1]
   op_imm = operands[1].split('(')[0]
-  memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2] = ["", 0] #либо создаю, если не было, либо зануляю без эффекта
-  memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2][0] = operands[0]
-  memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2][1] = registers[name_of_registers[operands[0]]]
+  memory[(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2] = ["", 0] #либо создаю, если не было, либо зануляю без эффекта
+  memory[(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2][0] = operands[0]
+  memory[(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2][1] = registers[name_of_registers[operands[0]]]
 
 def lw(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   op_reg = operands[1].split('(')[1][:-1]
   op_imm = operands[1].split('(')[0]
-  if memory.get(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2, False):
+  if memory.get((num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2, False):
     pass
   else:
-    memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2] = ["??", np.uint32(random.randint(0, 4_294_967_295))]
-  registers[name_of_registers[operands[0]]] = memory[num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2][1]
+    memory[(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2] = ["??", np.uint32(random.randint(0, 4_294_967_295))]
+  registers[name_of_registers[operands[0]]] = memory[(num_finder(num_finder(op_imm) + registers[name_of_registers[op_reg]], 32)>>2)<<2][1]
 
 def jalr(operands: list, registers: list, memory: dict, simbol_table: dict, pc) -> None:
   if len(operands) == 1:

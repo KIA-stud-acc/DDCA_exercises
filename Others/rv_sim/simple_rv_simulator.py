@@ -90,7 +90,7 @@ def rv_simulator(code_file: str, start_address: int = 0, sp: int = 4294967292, m
     if 'm' in flags:
       while True:
         try:
-          start_addr = num_finder(input("input start address of memory print: "), 32)
+          start_addr = (num_finder(input("input start address of memory print: "), 32)>>2)<<2
           break
         except ValueError:
           pass
